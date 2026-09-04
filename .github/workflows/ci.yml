@@ -114,7 +114,7 @@ jobs:
       - name: Start Docker Containers
         run: docker compose up -d
 
-      - name: Run post-deployment tests
+      - name: Run the post-deployment tests
         run: |
           docker compose exec -T app php artisan migrate --force
           docker compose exec -T app php artisan config:cache
