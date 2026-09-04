@@ -78,7 +78,7 @@ jobs:
           DB_DATABASE: database/database.sqlite
 
   build:
-    runs-on: ubuntu 24.04
+    runs-on: ubuntu-latest
     needs: test
     steps:
       - name: Checkout code
