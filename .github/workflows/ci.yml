@@ -20,11 +20,11 @@ jobs:
           extensions: mbstring, xml, ctype, iconv
           ini-values: post_max_size=256M, upload_max_filesize=256M
 
-      - name: Install Laravel Pint
-        run: composer global require laravel/pint
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run Pint
-        run: ~/.composer/vendor/bin/pint --test
+        run: vendor/bin/pint --test
 
   test:
     runs-on: ubuntu-latest
