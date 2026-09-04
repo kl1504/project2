@@ -1,0 +1,17 @@
+lint:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
+      - name: Install Laravel Pint
+        run: composer global require laravel/pint
+
+      - name: Run Pint
+        run: ~/.composer/vendor/bin/pint --test
