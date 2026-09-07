@@ -120,9 +120,19 @@ jobs:
           docker compose exec -T app php artisan config:cache
           docker compose exec -T app php artisan route:cache
           docker compose exec -T app php artisan view:cache
+      - name: Récupérer l'IP local du runner
+        id: local_ip
+        run: |
+          RUNNER_IP=$(hostname -I | awk '{print $1}') 
+          echo "L'adresse IP locale de ce runner est : $RUNNER_IP"
+          echo "ip=$RUNNER_IP" >> $GITHUB_OUTPUT
 
-      - name: Display Application URL
-        run: echo "Application is deployed and accessible at http:${{ secrets.IP_ADDRESS }}:7001"
+      - name: Valider l'accès via l'IP et le port
+        run: |
+          sleep 3
+          echo "Site accessible sur : http://${{ steps.local_ip.outputs.ip }}:8080"
+          curl -v http://${{ steps.local_ip.outputs.ip }}:8080
+
 
       - name: Docker Clean Up
         run: docker image prune -f
