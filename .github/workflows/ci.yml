@@ -129,9 +129,9 @@ jobs:
 
       - name: Valider l'accès via l'IP et le port
         run: |
-          sleep 3
-          echo "Site accessible sur : http://${{ steps.local_ip.outputs.ip }}:8080"
-          curl -v http://${{ steps.local_ip.outputs.ip }}:8080
+          sleep 10
+          echo "Site accessible sur : http://${{ steps.local_ip.outputs.ip }}:7001"
+          curl -v http://${{ steps.local_ip.outputs.ip }}:7001
 
 
       - name: Docker Clean Up
