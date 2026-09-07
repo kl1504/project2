@@ -61,7 +61,10 @@ jobs:
         run: cp .env.example .env
 
       - name: Generate app key
-        run: php artisan key:generate
+        run: |
+          RANDOM_KEY=$(openssl rand -base64 32)
+          sed -i "s|^APP_KEY=.*|APP_KEY=base64:${RANDOM_KEY}|" .env
+          echo "Une nouvelle APP_KEY a été injectée avec succès dans le fichier .env"
 
       - name: Prepare SQLite database
         run: |
