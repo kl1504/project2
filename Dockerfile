@@ -1,5 +1,16 @@
-FROM php:8.4-fpm
+FROM node:22-alpine AS node-builder
 
+WORKDIR /var/www/html
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+FROM php:8.4-fpm
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
@@ -17,26 +28,21 @@ RUN apt-get update && apt-get install -y \
     && docker-php-source delete \
     && pecl install -o -f redis \
     && docker-php-ext-enable redis
-
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
     
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY . /var/www/html
-
-RUN rm -f public/hot
+COPY composer.json composer.lock ./
 
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 COPY --chown=www-data:www-data . /var/www/html
 
-RUN npm install --no-audit --no-fund && npm run build \
-    && chown -R www-data:www-data storage bootstrap/cache \
+COPY --from=node-builder --chown=www-data:www-data /var/www/html/public/build ./public/build
+
+RUN composer dump-autoload --optimize
     && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 9000

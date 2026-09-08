@@ -21,7 +21,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - velstore-storage:/var/www/html/storage
+      - velstore-storage:/var/www/html/storage/app/public
       - velstore-build:/var/www/html/public/build
     networks:
       - velstore
@@ -43,7 +43,7 @@ services:
       - velstore
 
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.30.4-alpine
     ports:
       - "7001:80"
     volumes:
