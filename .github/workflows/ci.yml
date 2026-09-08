@@ -199,12 +199,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Scan DAST with OWASP ZAP
-        uses: zaproxy/action-full-scan@v0.10.0
+        uses: zaproxy/action-full-scan@v0.12.0
         with:
           target: 'http://192.168.122.1:7001'
           cmd_options: '-a'
           fail_action: false
-          artifact_name: 'zap-report'
+          artifact_name: ''
 
       - name: Install wkhtmltopdf
         run: |
