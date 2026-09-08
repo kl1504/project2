@@ -7,6 +7,29 @@ on:
     branches: [main]
 
 jobs:
+  security-prechecks: 
+    name: Security Prechecks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Trivy FS Scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with: 
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: CRITICAL,HIGH
+          exit-code: 1
+          ignore-unfixed: true
+
   lint:
     name: Static Code Analysis
     runs-on: ubuntu-latest
@@ -28,7 +51,7 @@ jobs:
 
       - name: Run Pint
         run: vendor/bin/pint --test
-
+      
   test:
     name: Execute Application Tests
     runs-on: ubuntu-latest
@@ -72,9 +95,30 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
 
+  static-testing:
+    name: Static Code Quality
+    runs-on: ubuntu-24.04
+    needs: test
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Analyse SonarQube
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
+      - name: Run SonarQube Quality Gate
+        uses: SonarSource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b # v1.2.0
+        timeout-minutes: 5
+        env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   build:
     name: Build the assets
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: test
     steps:
       - name: Checkout code
@@ -143,7 +187,36 @@ jobs:
       - name: Docker Clean Up
         run: docker image prune -f
 
-  
+  dast_scan:
+    name: DAST Scan
+    runs-on: ubuntu-24.04
+    needs: deploy
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
+      - name: Scan DAST with OWASP ZAP
+        uses: zaproxy/action-full-scan@v0.10.0
+        with:
+          target: 'http://192.168.122.1:7001'
+          cmd_options: '-a'          # active tous les scanners
+          fail_action: false         # ne bloque pas le pipeline (à mettre à true si tu veux du gate strict)
+          artifact_name: 'zap-report'
 
+      - name: Installwkhtmltopdf
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wkhtmltopdf 
+ 
+      - name: Convert ZAP report into PDF
+        run: |
+          wkhtmltopdf --enable-local-file-access report_html.html zap-vulnerability-report.pdf
+ 
+      # --- Étape 6 : publier le PDF comme artefact téléchargeable du run ---
+      - name: Publish the report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-vulnerability-report-pdf
+          path: zap-vulnerability-report.pdf
+          retention-days: 15
 
