@@ -36,7 +36,7 @@ WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./
 
-RUN composer install --no-interaction --prefer-dist
+RUN composer install --no-interaction --prefer-dist --no-autoloader
 
 COPY --chown=www-data:www-data . /var/www/html
 
