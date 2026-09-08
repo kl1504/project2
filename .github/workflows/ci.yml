@@ -22,7 +22,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Trivy FS Scan
-        uses: aquasecurity/trivy-action@v0.74.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with: 
           scan-type: 'fs'
           scan-ref: '.'
