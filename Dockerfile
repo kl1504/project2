@@ -42,7 +42,7 @@ COPY --chown=www-data:www-data . /var/www/html
 
 COPY --from=node-builder --chown=www-data:www-data /var/www/html/public/build ./public/build
 
-RUN composer dump-autoload --optimize
+RUN composer dump-autoload --optimize \
     && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 9000
