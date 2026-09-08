@@ -9,7 +9,7 @@ on:
 jobs:
   security-prechecks: 
     name: Security Prechecks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     
     steps:
       - name: Checkout Repository
@@ -32,7 +32,7 @@ jobs:
 
   lint:
     name: Static Code Analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -54,7 +54,7 @@ jobs:
       
   test:
     name: Execute Application Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: lint
 
     steps:
@@ -97,12 +97,12 @@ jobs:
 
   static-testing:
     name: Static Code Quality
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     needs: test
     steps:
 
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Analyse SonarQube
         uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
