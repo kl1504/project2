@@ -98,6 +98,7 @@ jobs:
           path: public/build
 
   deploy:
+    name: Deploy to production server
     runs-on: self-hosted
     needs: build
     if: github.event_name == 'push'
