@@ -172,7 +172,7 @@ jobs:
         
           LOCAL_IMAGE="project2-app"
           echo "Signing local image: ${LOCAL_IMAGE}"
-          cosign sign --key cosign.key --local-image "${LOCAL_IMAGE}"
+          cosign sign --key cosign.key --allow-insecure-registry "${LOCAL_IMAGE}"
 
           echo "Verifying local signature..."
           cosign verify --key cosign.pub --local-image "${LOCAL_IMAGE}"
